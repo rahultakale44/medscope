@@ -2,7 +2,7 @@
 
 MedScope is a local RAG (Retrieval-Augmented Generation) application for medical research. Upload trusted PDF documents, retrieve relevant evidence using semantic search, and generate source-backed answers with BioMistral-7B.
 
-## 🎯 Features
+##  Features
 
 - **PDF Ingestion**: Upload medical literature (up to 25MB)
 - **Semantic Search**: PubMedBERT embeddings for medical domain
@@ -12,7 +12,7 @@ MedScope is a local RAG (Retrieval-Augmented Generation) application for medical
 - **Premium UI**: Modern React dashboard with dark medical theme
 - **Private & Local**: All processing happens on your machine
 
-## 🏗️ Architecture
+##  Architecture
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -38,7 +38,7 @@ MedScope is a local RAG (Retrieval-Augmented Generation) application for medical
 └────────────────────────┘  └─────────────────────┘
 ```
 
-## 📦 Tech Stack
+##  Tech Stack
 
 ### Backend
 - Python 3.10+
@@ -83,7 +83,7 @@ medscope/
 └── docker-compose.yml     # Qdrant setup
 ```
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -283,7 +283,7 @@ VITE_API_BASE_URL=http://127.0.0.1:8000/api
 
 Edit `docker-compose.yml` to change ports or volumes.
 
-## 🛠️ Troubleshooting
+##  Troubleshooting
 
 ### Backend won't start
 
@@ -321,7 +321,7 @@ Edit `docker-compose.yml` to change ports or volumes.
 - Lower score threshold in advanced settings
 - Verify question is related to uploaded content
 
-## ⚠️ Medical Disclaimer
+##  Medical Disclaimer
 
 **MedScope is intended for medical literature research and educational purposes only.**
 
@@ -333,7 +333,7 @@ This application:
 
 Always consult licensed healthcare professionals for medical decisions.
 
-## 🔐 Security & Privacy
+##  Security & Privacy
 
 - **All processing is local** - no data sent to external APIs
 - **No authentication** - designed for single-user local use
@@ -347,14 +347,14 @@ For production deployment, add:
 - HTTPS/TLS
 - Access control
 
-## 📊 Performance Notes
+##  Performance Notes
 
 - **Embedding Generation**: ~1-2 seconds per document page
 - **Vector Search**: ~50-200ms for top-3 results
 - **LLM Inference**: 30-90 seconds (CPU, 7B model)
 - **Recommended**: 16GB RAM, modern CPU
 
-## 🧪 Testing
+##  Testing
 
 Run backend tests:
 
@@ -369,7 +369,7 @@ Test BioMistral model:
 python test_model.py
 ```
 
-## 📝 Development
+##  Development
 
 ### Build Frontend for Production
 
@@ -392,7 +392,7 @@ npm run lint
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
-## 🚧 Future Improvements
+##  Future Improvements
 
 - [ ] Streaming LLM responses
 - [ ] GPU acceleration for faster inference
