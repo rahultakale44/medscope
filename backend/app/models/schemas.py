@@ -69,3 +69,22 @@ class MedicalQueryResponse(BaseModel):
     total_sources: int
     sources: list[CitationSource]
     disclaimer: str
+
+
+class DocumentInfo(BaseModel):
+    document_name: str
+    file_hash: str
+    chunks_count: int
+    pages_count: int
+
+
+class DocumentListResponse(BaseModel):
+    total_documents: int
+    documents: list[DocumentInfo]
+
+
+class DocumentDeleteResponse(BaseModel):
+    status: str
+    document_name: str
+    deleted_chunks: int
+    message: str
