@@ -1,428 +1,826 @@
-# MedScope
+MedScope — Local Medical RAG Evidence Engine
 
-**Evidence-grounded medical literature retrieval system**
+MedScope is a local Retrieval-Augmented Generation (RAG) application for querying trusted medical PDF documents. It allows users to upload medical literature, convert the content into vector embeddings, retrieve relevant evidence, and generate grounded answers using a local medical language model.
 
-MedScope is a local RAG (Retrieval-Augmented Generation) application for medical research. Upload trusted PDF documents, retrieve relevant evidence using semantic search, and generate source-backed answers with BioMistral-7B.
+The complete system runs locally using FastAPI, React, PubMedBERT, Qdrant, and BioMistral-7B.
 
-## 🎯 Features
+Medical disclaimer: MedScope is intended for educational and research purposes only. It does not replace professional medical advice, diagnosis, or treatment.
 
-- **PDF Ingestion**: Upload medical literature (up to 25MB)
-- **Semantic Search**: PubMedBERT embeddings for medical domain
-- **Vector Database**: Qdrant for efficient similarity search
-- **Local LLM**: BioMistral-7B GGUF for evidence-grounded answers
-- **Source Citations**: Every answer includes document sources, page numbers, and similarity scores
-- **Premium UI**: Modern React dashboard with dark medical theme
-- **Private & Local**: All processing happens on your machine
+Project Overview
 
-## 🏗️ Architecture
+Medical guidelines, research papers, and clinical documents are often long and difficult to search manually.
 
-```
-┌─────────────────────────────────────────────────┐
-│  React Frontend (Vite)                          │
-│  localhost:5173                                 │
-└────────────────┬────────────────────────────────┘
-                 │
-┌────────────────▼────────────────────────────────┐
-│  FastAPI Backend                                │
-│  127.0.0.1:8000                                 │
-│                                                 │
-│  ├─ PDF Parser (PyMuPDF)                       │
-│  ├─ Text Splitter (LangChain)                  │
-│  ├─ PubMedBERT Embeddings                      │
-│  ├─ BioMistral-7B (llama-cpp-python)           │
-│  └─ RAG Service                                 │
-└─────┬──────────────────────────────┬────────────┘
-      │                              │
-┌─────▼──────────────────┐  ┌────────▼────────────┐
-│  Qdrant Vector DB      │  │  BioMistral Model   │
-│  localhost:6333        │  │  (GGUF Format)      │
-│  (Docker)              │  │                     │
-└────────────────────────┘  └─────────────────────┘
-```
+A normal chatbot does not automatically know the contents of locally uploaded PDFs and may generate answers without reliable evidence.
 
-## 📦 Tech Stack
+MedScope solves this problem by:
 
-### Backend
-- Python 3.10+
-- FastAPI
-- Qdrant (vector database)
-- PubMedBERT (`NeuML/pubmedbert-base-embeddings`)
-- BioMistral-7B (GGUF, quantized)
-- llama-cpp-python
-- PyMuPDF (PDF parsing)
-- LangChain (text splitting)
+extracting text from uploaded medical PDFs
 
-### Frontend
-- React 19.2.7
-- Vite 8.1.1
-- React Router DOM
-- Axios
-- Lucide React (icons)
+dividing the text into manageable chunks
 
-## 📁 Project Structure
+converting chunks into medical-domain embeddings
 
-```
+storing embeddings in Qdrant
+
+retrieving the most relevant chunks for a question
+
+generating answers using BioMistral-7B
+
+showing citations with document name, page number, chunk number, and similarity score
+
+Why This Is a RAG Project
+
+RAG stands for Retrieval-Augmented Generation.
+
+MedScope combines two major stages:
+
+Retrieval
+
+PubMedBERT converts document chunks and user questions into embeddings.
+
+Qdrant performs semantic similarity search.
+
+The most relevant evidence is retrieved from uploaded PDFs.
+
+Generation
+
+Retrieved evidence is added to the prompt.
+
+BioMistral-7B generates a response grounded in that evidence.
+
+The answer is returned with source citations.
+
+PDF Upload
+   ↓
+Text Extraction
+   ↓
+Chunking
+   ↓
+PubMedBERT Embeddings
+   ↓
+Qdrant Vector Database
+   ↓
+User Question
+   ↓
+Semantic Retrieval
+   ↓
+Relevant Medical Context
+   ↓
+BioMistral-7B
+   ↓
+Grounded Answer + Citations
+
+Features
+
+Medical PDF Ingestion
+
+Upload PDF documents
+
+Drag-and-drop interface
+
+PDF validation
+
+Text extraction
+
+Automatic chunking
+
+Embedding generation
+
+Qdrant indexing
+
+Duplicate-document handling
+
+Medical Question Answering
+
+Ask questions from uploaded literature
+
+Semantic retrieval
+
+Local BioMistral inference
+
+Grounded answer status
+
+Suggested questions
+
+Loading states for local model inference
+
+Copy answer
+
+Start a new question
+
+Source Citations
+
+Each generated answer may include:
+
+document name
+
+page number
+
+chunk index
+
+similarity score
+
+retrieved evidence text
+
+Document Library
+
+View indexed documents
+
+Search documents
+
+Refresh document list
+
+View page and chunk counts
+
+Delete documents safely
+
+Remove corresponding vectors from Qdrant
+
+System Dashboard
+
+FastAPI service status
+
+Qdrant status
+
+embedding model status
+
+local LLM status
+
+indexed vector count
+
+quick navigation actions
+
+Local and Private
+
+Runs locally
+
+Uses a local GGUF model
+
+Stores vectors locally in Qdrant
+
+No dependency on an external LLM API for generation
+
+Screenshots
+
+Add screenshots to a folder such as:
+
+docs/screenshots/
+
+Suggested screenshots:
+
+Dashboard
+
+Ask MedScope
+
+Upload Documents
+
+Document Library
+
+Grounded answer with citations
+
+Example:
+
+![MedScope Dashboard](docs/screenshots/dashboard.png)
+
+Tech Stack
+
+Frontend
+
+React
+
+Vite
+
+JavaScript
+
+React Router DOM
+
+Axios
+
+Lucide React
+
+CSS
+
+Backend
+
+Python 3.10
+
+FastAPI
+
+Uvicorn
+
+Pydantic
+
+PyMuPDF or PDF parsing utilities
+
+Sentence Transformers
+
+llama-cpp-python
+
+AI and RAG
+
+BioMistral-7B GGUF
+
+PubMedBERT embeddings
+
+Qdrant vector database
+
+semantic similarity retrieval
+
+context-grounded prompt generation
+
+Infrastructure
+
+Docker
+
+Docker Compose
+
+Local file storage
+
+System Architecture
+
+React + Vite Frontend
+        |
+        | Axios / HTTP
+        v
+FastAPI Backend
+        |
+        ├── Document Service
+        ├── PDF Parser
+        ├── Embedding Service
+        ├── Qdrant Service
+        ├── RAG Service
+        └── LLM Service
+                |
+                v
+        BioMistral-7B GGUF
+
+Vector Storage:
+Qdrant
+
+Embedding Model:
+PubMedBERT
+
+Project Structure
+
 medscope/
 ├── backend/
 │   ├── app/
-│   │   ├── api/           # FastAPI routes
-│   │   ├── core/          # Config, prompts
-│   │   ├── models/        # Pydantic schemas
-│   │   ├── services/      # Business logic
-│   │   └── utils/         # PDF parser
-│   ├── models/            # BioMistral GGUF
-│   └── requirements.txt
+│   │   ├── api/
+│   │   │   ├── chat.py
+│   │   │   ├── documents.py
+│   │   │   └── health.py
+│   │   ├── core/
+│   │   │   ├── config.py
+│   │   │   └── prompts.py
+│   │   ├── models/
+│   │   │   └── schemas.py
+│   │   ├── services/
+│   │   │   ├── document_service.py
+│   │   │   ├── embedding_service.py
+│   │   │   ├── llm_service.py
+│   │   │   ├── qdrant_service.py
+│   │   │   └── rag_service.py
+│   │   ├── utils/
+│   │   └── main.py
+│   ├── models/
+│   │   └── ggml-model-Q4_K_M.gguf
+│   ├── tests/
+│   ├── .env.example
+│   ├── requirements.txt
+│   └── test_model.py
+│
 ├── frontend/
+│   ├── public/
 │   ├── src/
-│   │   ├── components/    # React components
-│   │   ├── pages/         # Route pages
-│   │   ├── services/      # API client
-│   │   ├── hooks/         # Custom hooks
-│   │   └── styles/        # CSS system
-│   └── package.json
-├── documents/             # Uploaded PDFs (gitignored)
-├── qdrant_storage/        # Vector DB data (gitignored)
-└── docker-compose.yml     # Qdrant setup
-```
+│   │   ├── components/
+│   │   ├── layouts/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── index.css
+│   ├── .env
+│   ├── package.json
+│   └── vite.config.js
+│
+├── documents/
+├── qdrant_storage/
+├── docker-compose.yml
+├── .gitignore
+└── README.md
 
-## 🚀 Getting Started
+Prerequisites
 
-### Prerequisites
+Install the following:
 
-- **Python 3.10+** with pip
-- **Node.js 18+** with npm
-- **Docker** (for Qdrant)
-- **BioMistral-7B GGUF model** (place in `backend/models/`)
+Python 3.10
 
-### 1. Clone Repository
+Node.js 20 or later
 
-```powershell
-git clone <repository-url>
+npm
+
+Docker Desktop
+
+Git
+
+Visual Studio C++ Runtime on Windows
+
+at least 16 GB RAM recommended
+
+sufficient storage for the local GGUF model
+
+Installation
+
+1. Clone the Repository
+
+git clone https://github.com/YOUR_USERNAME/medscope.git
 cd medscope
-```
 
-### 2. Setup Backend
+Replace YOUR_USERNAME with your GitHub username.
 
-#### Create Virtual Environment
+2. Start Qdrant
 
-```powershell
+From the project root:
+
+docker compose up -d
+
+Verify the container:
+
+docker ps
+
+Qdrant should be available at:
+
+http://localhost:6333
+
+3. Backend Setup
+
+Move into the backend folder:
+
 cd backend
+
+Create a virtual environment:
+
 python -m venv venv
+
+Activate it:
+
 .\venv\Scripts\Activate.ps1
-```
 
-#### Install Dependencies
+Upgrade pip:
 
-```powershell
+python -m pip install --upgrade pip
+
+Install dependencies:
+
 pip install -r requirements.txt
-```
 
-#### Configure Environment
+4. Configure Backend Environment Variables
 
-Create `backend/.env`:
+Create a .env file inside backend.
 
-```env
+Example:
+
+APP_NAME=MedScope
 QDRANT_URL=http://localhost:6333
 QDRANT_COLLECTION=medical_documents
 EMBEDDING_MODEL=NeuML/pubmedbert-base-embeddings
-```
+MODEL_PATH=models/ggml-model-Q4_K_M.gguf
 
-#### Download BioMistral Model
+Use the actual variable names expected by backend/app/core/config.py.
 
-Place `ggml-model-Q4_K_M.gguf` in `backend/models/` directory.
+5. Add the BioMistral Model
 
-Model source: [BioMistral-7B GGUF quantized model]
+Place the GGUF model inside:
 
-### 3. Setup Frontend
+backend/models/
 
-```powershell
+Expected file:
+
+ggml-model-Q4_K_M.gguf
+
+Example model path:
+
+backend/models/ggml-model-Q4_K_M.gguf
+
+The model file is large and should not be committed to GitHub.
+
+6. Start the Backend
+
+From the backend folder:
+
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+
+Backend URL:
+
+http://127.0.0.1:8000
+
+Swagger API documentation:
+
+http://127.0.0.1:8000/docs
+
+7. Frontend Setup
+
+Open a new terminal.
+
+Move into the frontend folder:
+
 cd frontend
+
+Install dependencies:
+
 npm install
-```
 
-Frontend environment (`.env`):
+Create or update frontend/.env:
 
-```env
 VITE_API_BASE_URL=http://127.0.0.1:8000/api
-```
 
-### 4. Start Qdrant
+Start the frontend:
 
-From project root:
+npm run dev
 
-```powershell
-docker-compose up -d
-```
+Frontend URL:
 
-Verify Qdrant is running:
-- Dashboard: http://localhost:6333/dashboard
-- API: http://localhost:6333
+http://localhost:5173
 
-### 5. Start Backend
+Recommended Startup Order
 
-```powershell
-cd backend
+Always start services in this order:
+
+1. Docker Desktop
+2. Qdrant
+3. FastAPI backend
+4. React frontend
+
+Commands:
+
+Terminal 1 — Qdrant
+
+cd D:\MedScope\medscope
+docker compose up -d
+
+Terminal 2 — Backend
+
+cd D:\MedScope\medscope\backend
 .\venv\Scripts\Activate.ps1
 uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
-```
 
-Backend will be available at:
-- API: http://127.0.0.1:8000
-- Docs: http://127.0.0.1:8000/docs
+Terminal 3 — Frontend
 
-### 6. Start Frontend
-
-```powershell
-cd frontend
+cd D:\MedScope\medscope\frontend
 npm run dev
-```
 
-Frontend will be available at:
-- App: http://localhost:5173
+API Endpoints
 
-## 📖 API Documentation
+Health
 
-### Health Endpoints
+GET /api/health
 
-```
-GET  /api/health              # API status
-GET  /api/health/embedding    # PubMedBERT status
-GET  /api/health/qdrant       # Qdrant status
-POST /api/health/qdrant/initialize  # Create collection
-```
+GET /api/health/embedding
 
-### Document Endpoints
+GET /api/health/qdrant
 
-```
-POST   /api/documents/upload  # Upload PDF
-GET    /api/documents         # List documents
-DELETE /api/documents/{hash}  # Delete document
-```
+POST /api/health/qdrant/initialize
 
-### RAG Endpoints
+Documents
 
-```
-POST /api/chat/retrieve  # Semantic search only
-POST /api/chat/query     # RAG with answer generation
-```
+POST /api/documents/upload
 
-#### Example Query Request
+Uploads a PDF using multipart/form-data.
 
-```json
+Field name:
+
+file
+
+GET /api/documents
+
+Returns indexed documents.
+
+DELETE /api/documents/{file_hash}
+
+Deletes a document and its vector chunks.
+
+RAG
+
+POST /api/chat/retrieve
+
+Retrieves relevant document chunks.
+
+Example request:
+
 {
   "question": "What treatment is recommended for hypertension?",
+  "top_k": 3
+}
+
+POST /api/chat/query
+
+Runs the complete RAG pipeline.
+
+Example request:
+
+{
+  "question": "What lifestyle changes and medications are recommended for hypertension?",
   "top_k": 3,
   "score_threshold": 0.2
 }
-```
 
-#### Example Query Response
+Example response:
 
-```json
 {
-  "question": "What treatment is recommended for hypertension?",
-  "answer": "According to the uploaded guidelines...",
+  "question": "What lifestyle changes and medications are recommended for hypertension?",
+  "answer": "The uploaded evidence recommends...",
   "grounded": true,
   "total_sources": 3,
   "sources": [
     {
-      "document_name": "hypertension-guidelines-2024.pdf",
-      "page_number": 5,
-      "chunk_index": 2,
-      "score": 0.873
+      "document_name": "01_hypertension_overview.pdf",
+      "page_number": 1,
+      "chunk_index": 1,
+      "score": 0.631
     }
-  ],
-  "disclaimer": "This response summarizes uploaded medical literature..."
+  ]
 }
-```
 
-## 🔧 Usage Workflow
+Example Workflow
 
-1. **Upload Documents**
-   - Navigate to "Upload Documents"
-   - Drag & drop or select a medical PDF
-   - Wait for processing (extraction, chunking, embedding, indexing)
+Step 1
 
-2. **Ask Questions**
-   - Navigate to "Ask MedScope"
-   - Enter a question related to uploaded literature
-   - Adjust top-k and score threshold in advanced settings
-   - Submit and wait for BioMistral inference (30-90 seconds)
+Open the Upload Documents page.
 
-3. **View Sources**
-   - Review generated answer
-   - Check grounding status
-   - Inspect source citations with similarity scores
+Step 2
 
-4. **Manage Library**
-   - Navigate to "Document Library"
-   - Search documents
-   - Delete documents (removes vectors from Qdrant)
+Upload a trusted medical PDF.
 
-## ⚙️ Configuration
+Step 3
 
-### Backend Settings
+Wait for:
 
-Edit `backend/app/core/config.py`:
+text extraction
 
-```python
-class Settings(BaseSettings):
-    app_name: str = "MedScope"
-    qdrant_url: str = "http://localhost:6333"
-    qdrant_collection: str = "medical_documents"
-    embedding_model: str = "NeuML/pubmedbert-base-embeddings"
-```
+chunk creation
 
-### Frontend Settings
+embedding generation
 
-Edit `frontend/.env`:
+Qdrant indexing
 
-```env
-VITE_API_BASE_URL=http://127.0.0.1:8000/api
-```
+Step 4
 
-### Qdrant Settings
+Open Document Library and verify that the document appears.
 
-Edit `docker-compose.yml` to change ports or volumes.
+Step 5
 
-## 🛠️ Troubleshooting
+Open Ask MedScope and enter a question.
 
-### Backend won't start
+Example:
 
-- Verify Python 3.10+ is installed
-- Check virtual environment is activated
-- Ensure all dependencies are installed
-- Verify BioMistral model exists at `backend/models/ggml-model-Q4_K_M.gguf`
+What monitoring and lifestyle measures are recommended for managing type 2 diabetes?
 
-### Qdrant connection failed
+Step 6
 
-- Check Docker is running: `docker ps`
-- Start Qdrant: `docker-compose up -d`
-- Verify port 6333 is not blocked
+Review:
 
-### Frontend can't connect to backend
+grounded answer
 
-- Verify backend is running on http://127.0.0.1:8000
-- Check CORS settings in `backend/app/main.py`
-- Verify `VITE_API_BASE_URL` in frontend `.env`
+cited PDF
 
-### Upload fails
+page number
 
-- Check file is PDF format
-- Ensure file size is under 25MB
-- Verify PDF contains extractable text (not scanned images)
+chunk number
 
-### Answer generation is slow
+similarity score
 
-- **Expected behavior**: BioMistral-7B runs on CPU, taking 30-90 seconds
-- To speed up: Use GPU acceleration (requires CUDA setup)
+Tested Questions
 
-### Empty answers
+Hypertension
 
-- Check if documents are uploaded and indexed
-- Lower score threshold in advanced settings
-- Verify question is related to uploaded content
+What lifestyle changes and medications are commonly recommended for managing hypertension?
 
-## ⚠️ Medical Disclaimer
+Type 2 Diabetes
 
-**MedScope is intended for medical literature research and educational purposes only.**
+What monitoring and lifestyle measures are recommended for managing type 2 diabetes?
 
-This application:
-- Does NOT provide medical advice, diagnosis, or treatment
-- Does NOT replace consultation with qualified healthcare providers
-- Should NOT be used for clinical decision-making
-- Summarizes uploaded documents and may contain errors
+Asthma
 
-Always consult licensed healthcare professionals for medical decisions.
+What long-term treatment and self-management measures are recommended for asthma?
 
-## 🔐 Security & Privacy
+Antibiotic Stewardship
 
-- **All processing is local** - no data sent to external APIs
-- **No authentication** - designed for single-user local use
-- **File validation** - accepts PDF only, max 25MB
-- **No persistent sessions** - stateless backend
+What principles help ensure the appropriate use of antibiotics?
 
-For production deployment, add:
-- User authentication
-- Rate limiting
-- Input sanitization
-- HTTPS/TLS
-- Access control
+Cardiovascular Prevention
 
-## 📊 Performance Notes
+What lifestyle and medication strategies are used for cardiovascular disease prevention?
 
-- **Embedding Generation**: ~1-2 seconds per document page
-- **Vector Search**: ~50-200ms for top-3 results
-- **LLM Inference**: 30-90 seconds (CPU, 7B model)
-- **Recommended**: 16GB RAM, modern CPU
+Production Build
 
-## 🧪 Testing
+To verify the frontend build:
 
-Run backend tests:
-
-```powershell
-cd backend
-pytest
-```
-
-Test BioMistral model:
-
-```powershell
-python test_model.py
-```
-
-## 📝 Development
-
-### Build Frontend for Production
-
-```powershell
 cd frontend
 npm run build
-```
 
-Output: `frontend/dist/`
+Expected result:
 
-### Lint Frontend
+✓ built in ...
 
-```powershell
-npm run lint
-```
+The production files will be created inside:
 
-### Run Backend in Production
+frontend/dist/
 
-```powershell
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
-```
+Git Ignore Recommendations
 
-## 🚧 Future Improvements
+Make sure the following are ignored:
 
-- [ ] Streaming LLM responses
-- [ ] GPU acceleration for faster inference
-- [ ] Document preview and highlighting
-- [ ] Multi-document comparison
-- [ ] Export answers to PDF/Markdown
-- [ ] Query history
-- [ ] Advanced filtering (date, document type)
-- [ ] Batch document upload
-- [ ] Custom embedding models
-- [ ] Fine-tuned medical LLM
+backend/venv/
+frontend/node_modules/
+frontend/dist/
+backend/models/*.gguf
+qdrant_storage/
+.env
+*.pyc
+__pycache__/
+.vscode/
+.DS_Store
 
-## 📄 License
+Do not commit:
 
-[Add your license here]
+local GGUF model files
 
-## 👥 Contributing
+virtual environments
 
-[Add contribution guidelines]
+node_modules
 
-## 🙏 Acknowledgments
+Qdrant storage
 
-- BioMistral-7B by [Mistral AI]
-- PubMedBERT by [Microsoft Research]
-- Qdrant vector database
-- FastAPI framework
-- React and Vite teams
+secrets
 
----
+generated build files unless required
 
-**Built with ❤️ for medical research**
+Troubleshooting
+
+Qdrant Configuration File Not Found
+
+Problem:
+
+no configuration file provided: not found
+
+Cause:
+
+docker compose up -d was executed from the wrong folder.
+
+Fix:
+
+cd D:\MedScope\medscope
+docker compose up -d
+
+Frontend Port Already in Use
+
+Problem:
+
+Port 5173 is in use
+
+Stop the running Node process:
+
+Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force
+
+Then restart:
+
+cd frontend
+npm run dev
+
+Backend Import Error
+
+Problem:
+
+ImportError: cannot import name ...
+
+Check:
+
+service function names
+
+router exports
+
+module paths
+
+__init__.py files
+
+cached singleton function names
+
+llama-cpp Shared Library Error
+
+Problem:
+
+Could not find llama.dll
+
+Possible causes:
+
+incompatible llama-cpp-python wheel
+
+missing runtime dependency
+
+incompatible CUDA build
+
+corrupt installation
+
+A CPU-compatible installation may be used when GPU setup is unavailable.
+
+Slow Answer Generation
+
+Local BioMistral inference may take approximately 30–90 seconds depending on:
+
+hardware
+
+model quantization
+
+prompt size
+
+CPU or GPU configuration
+
+number of retrieved chunks
+
+This is expected for local inference.
+
+Frontend Cannot Reach Backend
+
+Verify:
+
+http://127.0.0.1:8000/docs
+
+Check frontend/.env:
+
+VITE_API_BASE_URL=http://127.0.0.1:8000/api
+
+Restart Vite after changing .env.
+
+Current Working Status
+
+The following flow has been tested successfully:
+
+PDF Upload
+→ Text Extraction
+→ Chunking
+→ PubMedBERT Embeddings
+→ Qdrant Indexing
+→ Question Submission
+→ Semantic Retrieval
+→ BioMistral Generation
+→ Grounded Answer
+→ Source Citations
+
+Verified features:
+
+Dashboard status cards
+
+PDF upload
+
+Document Library
+
+semantic retrieval
+
+BioMistral answer generation
+
+grounded status
+
+source PDF name
+
+page and chunk metadata
+
+similarity score
+
+production frontend build
+
+Future Improvements
+
+authentication and user accounts
+
+conversation history
+
+document collections
+
+document preview
+
+evidence highlighting
+
+reranking model
+
+hybrid keyword and vector search
+
+OCR for scanned PDFs
+
+multi-language support
+
+GPU acceleration
+
+streaming token responses
+
+deployment with Docker
+
+automated evaluation metrics
+
+role-based access
+
+audit logs
+
+support for DOCX and research URLs
+
+
+should be independently verified before clinical use
